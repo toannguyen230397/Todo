@@ -20,7 +20,7 @@ class PlanScreen extends StatelessWidget {
           children: [
             Header(
               Screen: 'Plan',
-              Title: 'Tất Cả Kế Hoạch',
+              Title: 'Kế Hoạch Sắp Tới',
             ),
             Expanded(
               child: BlocBuilder<TodoBloc, TodoState>(
@@ -53,7 +53,7 @@ class PlanScreen extends StatelessWidget {
                       ));
                 } else {
                   return Center(
-                    child: EmptyDataWidget(Label: 'Không có công việc để hiển thị'),
+                    child: EmptyDataWidget(Label: 'Không có kế hoạch nào để hiển thị'),
                   );
                 }
               }),

@@ -50,7 +50,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 controller: descController, hint: 'Nhập nội dung', length: 50),
             InkWell(
               onTap: () {
-                FocusScope.of(context).unfocus();
+                FocusManager.instance.primaryFocus?.unfocus();
                 dateTimePicker(dateController);
               },
               child: Container(
@@ -111,23 +111,24 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     style:
                         ElevatedButton.styleFrom(backgroundColor: Colors.blue),
                     onPressed: () {
+                      FocusManager.instance.primaryFocus?.unfocus();
                       int id = DateTime.now().millisecondsSinceEpoch;
                       String title = titleController.text;
                       String desc = descController.text;
                       String date = dateController.text;
                       int notiID = Random().nextInt(1000);
                       bool redFlag =
-                          title.isEmpty && desc.isEmpty && date.isEmpty;
-                      final task = Todo(
-                          id: id,
-                          title: title,
-                          desc: desc,
-                          date: date,
-                          notiID: notiID,
-                          isDone: 0);
+                          title.isEmpty || desc.isEmpty || date.isEmpty;
                       if (redFlag) {
-                        print('Chưa nhập thông tin');
+                        _showMyDialog();
                       } else {
+                        final task = Todo(
+                            id: id,
+                            title: title,
+                            desc: desc,
+                            date: date,
+                            notiID: notiID,
+                            isDone: 0);
                         context.read<TodoBloc>().add(AddTask(task: task));
                         widget.goPreviousPage();
                       }
@@ -177,6 +178,31 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             hintStyle:
                 TextStyle(color: Colors.black26, fontWeight: FontWeight.bold)),
       ),
+    );
+  }
+
+  Future<void> _showMyDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Text('Vui lòng nhập đủ thông tin!'),
+          actions: <Widget>[
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Xác Nhận',
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

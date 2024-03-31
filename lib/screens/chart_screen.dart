@@ -27,39 +27,46 @@ class ChartScreen extends StatelessWidget {
                 final todoList = state.task
                     .where((task) => task.date.contains(date))
                     .toList();
-                final doneList =
-                    todoList.where((task) => task.isDone == 1).toList();
+                if (todoList.isNotEmpty) {
+                  final doneList =
+                      todoList.where((task) => task.isDone == 1).toList();
 
-                int doneNumber() {
-                  int doneNumber =
-                      ((doneList.length / todoList.length) * 100).round();
-                  return doneNumber;
+                  int doneNumber() {
+                    int doneNumber =
+                        ((doneList.length / todoList.length) * 100).round();
+                    return doneNumber;
+                  }
+
+                  int notDoneNumber = 100 - doneNumber();
+
+                  print(doneNumber);
+
+                  List<GDPData> chartData = [
+                    GDPData(continent: 'Đã Hoàn Thành', gdp: doneNumber()),
+                    GDPData(continent: 'Chưa Hoàn Thành', gdp: notDoneNumber),
+                  ];
+                  return SfCircularChart(
+                    series: <CircularSeries>[
+                      PieSeries<GDPData, String>(
+                        dataSource: chartData,
+                        xValueMapper: (GDPData data, _) => data.continent,
+                        yValueMapper: (GDPData data, _) => data.gdp,
+                        dataLabelSettings: DataLabelSettings(
+                            isVisible: true,
+                            textStyle: TextStyle(fontSize: 18)),
+                      )
+                    ],
+                    legend: Legend(
+                        position: LegendPosition.bottom,
+                        isVisible: true,
+                        overflowMode: LegendItemOverflowMode.wrap,
+                        textStyle: TextStyle(fontSize: 18)),
+                  );
+                } else {
+                  return Center(
+                    child: EmptyDataWidget(Label: 'Không Có Dữ Liệu Thống Kê'),
+                  );
                 }
-
-                int notDoneNumber = 100 - doneNumber();
-
-                print(doneNumber);
-
-                List<GDPData> chartData = [
-                  GDPData(continent: 'Đã Hoàn Thành', gdp: doneNumber()),
-                  GDPData(continent: 'Chưa Hoàn Thành', gdp: notDoneNumber),
-                ];
-                return SfCircularChart(
-                  series: <CircularSeries>[
-                    PieSeries<GDPData, String>(
-                      dataSource: chartData,
-                      xValueMapper: (GDPData data, _) => data.continent,
-                      yValueMapper: (GDPData data, _) => data.gdp,
-                      dataLabelSettings: DataLabelSettings(
-                          isVisible: true, textStyle: TextStyle(fontSize: 18)),
-                    )
-                  ],
-                  legend: Legend(
-                      position: LegendPosition.bottom,
-                      isVisible: true,
-                      overflowMode: LegendItemOverflowMode.wrap,
-                      textStyle: TextStyle(fontSize: 18)),
-                );
               } else {
                 return Center(
                   child: EmptyDataWidget(Label: 'Không Có Dữ Liệu Thống Kê'),

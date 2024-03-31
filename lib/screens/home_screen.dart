@@ -30,7 +30,6 @@ class HomeScreen extends StatelessWidget {
         builder: (context, state) {
           if (state is TodoInitial) {
             context.read<TodoBloc>().add(LoadData());
-            print('hello world');
           }
           if (state is TodoLoading) {
             return Column(
@@ -46,8 +45,6 @@ class HomeScreen extends StatelessWidget {
           if (state is TodoUpdate && state.task.isNotEmpty) {
             String date = formatDT(DateTime.now().toString());
             final todoList = state.task.where((task) => task.date.contains(date)).toList();
-            final dateList = state.task.map((task) => task.date).toList();
-            print(dateList);
             return PageView(
               controller: pageController,
               physics: NeverScrollableScrollPhysics(),
@@ -56,7 +53,8 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     Header(Screen: 'Home', Title: 'Công Việc Hôm Nay'),
                     Expanded(
-                      child: ShaderMask(
+                      child: todoList.isNotEmpty
+                      ? ShaderMask(
                           shaderCallback: (rect) {
                             return LinearGradient(
                               begin: Alignment.topCenter,
@@ -76,7 +74,8 @@ class HomeScreen extends StatelessWidget {
                               final todo = todoList[index];
                               return TaskWidget(context, todo);
                             },
-                          )),
+                          ))
+                      : EmptyDataWidget(Label: 'Không có dữ liệu! hãy thêm công việc mới')  
                     ),
                     addButton(goNextPage: goNextPage)
                   ],

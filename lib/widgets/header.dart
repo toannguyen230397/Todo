@@ -48,59 +48,66 @@ class _HeaderState extends State<Header> {
                         builder: (context, dropdownState) {
                           if (todoState is TodoUpdate &&
                               todoState.task.isNotEmpty) {
+                            String today = formatDT(DateTime.now().toString());
                             final dateList = todoState.task
+                                .where((task) => formatDT(task.date) != today)
                                 .map((task) => formatDT(task.date))
                                 .toSet()
                                 .toList();
-                            dropdownState.item == ''
-                                ? context
-                                    .read<DropdownBloc>()
-                                    .add(SelectedItem(item: dateList.first))
-                                : null;
-                            bool greenFlag =
-                                dateList.contains(dropdownState.item);
-                            greenFlag == false
-                                ? context
-                                    .read<DropdownBloc>()
-                                    .add(SelectedItem(item: dateList.first))
-                                : null;
-                            String? selectedItem =
-                                greenFlag ? dropdownState.item : dateList.first;
-                            return DropdownButton<String>(
-                              selectedItemBuilder: (_) {
-                                return dateList
-                                    .map((e) => Container(
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            '${formatDate(e)} ',
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 20),
-                                          ),
-                                        ))
-                                    .toList();
-                              },
-                              value: selectedItem,
-                              icon: CircleAvatar(
-                                radius: 12,
-                                backgroundColor: Colors.white,
-                                child: Icon(Icons.arrow_drop_down),
-                              ),
-                              items: dateList.map((String value) {
-                                return new DropdownMenuItem<String>(
-                                  value: value,
-                                  child: new Text(
-                                    formatDate(value),
-                                    style: TextStyle(color: Colors.black54),
-                                  ),
-                                );
-                              }).toList(),
-                              onChanged: (item) {
-                                context
-                                    .read<DropdownBloc>()
-                                    .add(SelectedItem(item: item.toString()));
-                              },
-                            );
+                            if (dateList.isNotEmpty) {
+                              dropdownState.item == ''
+                                  ? context
+                                      .read<DropdownBloc>()
+                                      .add(SelectedItem(item: dateList.first))
+                                  : null;
+                              bool greenFlag =
+                                  dateList.contains(dropdownState.item);
+                              greenFlag == false
+                                  ? context
+                                      .read<DropdownBloc>()
+                                      .add(SelectedItem(item: dateList.first))
+                                  : null;
+                              String? selectedItem = greenFlag
+                                  ? dropdownState.item
+                                  : dateList.first;
+                              return DropdownButton<String>(
+                                selectedItemBuilder: (_) {
+                                  return dateList
+                                      .map((e) => Container(
+                                            alignment: Alignment.center,
+                                            child: Text(
+                                              '${formatDate(e)} ',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 20),
+                                            ),
+                                          ))
+                                      .toList();
+                                },
+                                value: selectedItem,
+                                icon: CircleAvatar(
+                                  radius: 12,
+                                  backgroundColor: Colors.white,
+                                  child: Icon(Icons.arrow_drop_down),
+                                ),
+                                items: dateList.map((String value) {
+                                  return new DropdownMenuItem<String>(
+                                    value: value,
+                                    child: new Text(
+                                      formatDate(value),
+                                      style: TextStyle(color: Colors.black54),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (item) {
+                                  context
+                                      .read<DropdownBloc>()
+                                      .add(SelectedItem(item: item.toString()));
+                                },
+                              );
+                            } else {
+                              return Container();
+                            }
                           } else {
                             return Container();
                           }
@@ -118,7 +125,8 @@ class _HeaderState extends State<Header> {
                               builder: (context, state) {
                                 if (state is TodoUpdate &&
                                     state.task.isNotEmpty) {
-                                  String date = formatDT(DateTime.now().toString());
+                                  String date =
+                                      formatDT(DateTime.now().toString());
                                   final todoList = state.task
                                       .where((task) => task.date.contains(date))
                                       .toList();
@@ -128,9 +136,12 @@ class _HeaderState extends State<Header> {
                                   final notDoneList = todoList
                                       .where((task) => task.isDone == 0)
                                       .toList();
-                                  return Text('Số công việc hôm nay: ${todoList.length}\nĐã hoàn thành: ${doneList.length} - Chưa hoàn thành: ${notDoneList.length}',
-                                          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),  
-                                        );
+                                  return Text(
+                                    'Số công việc hôm nay: ${todoList.length}\nĐã hoàn thành: ${doneList.length} - Chưa hoàn thành: ${notDoneList.length}',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white),
+                                  );
                                 } else {
                                   return Container();
                                 }
