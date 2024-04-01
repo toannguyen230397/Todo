@@ -25,12 +25,17 @@ class PlanScreen extends StatelessWidget {
             Expanded(
               child: BlocBuilder<TodoBloc, TodoState>(
                   builder: (context, todoState) {
-                if (todoState is TodoUpdate && todoState.task.isNotEmpty) {
+                if (todoState is TodoUpdate && todoState.task.isNotEmpty && dropdownState.item != '') {
                   String date = dropdownState.item;
                   final todoList = todoState.task
                       .where((task) => task.date.contains(date))
                       .toList();
-                  return ShaderMask(
+                  if(todoList.isEmpty) {
+                    return Center(
+                      child: EmptyDataWidget(Label: 'Không có kế hoạch nào để hiển thị'),
+                    );
+                  } else {
+                    return ShaderMask(
                       shaderCallback: (rect) {
                         return LinearGradient(
                           begin: Alignment.topCenter,
@@ -51,6 +56,7 @@ class PlanScreen extends StatelessWidget {
                           return TaskWidget(context, todo);
                         },
                       ));
+                  }
                 } else {
                   return Center(
                     child: EmptyDataWidget(Label: 'Không có kế hoạch nào để hiển thị'),
