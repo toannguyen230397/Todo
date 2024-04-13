@@ -25,8 +25,8 @@ class PlanScreen extends StatelessWidget {
             Expanded(
               child: BlocBuilder<TodoBloc, TodoState>(
                   builder: (context, todoState) {
-                if (todoState is TodoUpdate && todoState.task.isNotEmpty && dropdownState.item != '') {
-                  String date = dropdownState.item;
+                if (todoState is TodoUpdate && todoState.task.isNotEmpty && dropdownState.planItem != '') {
+                  String date = dropdownState.planItem;
                   final todoList = todoState.task
                       .where((task) => task.date.contains(date))
                       .toList();

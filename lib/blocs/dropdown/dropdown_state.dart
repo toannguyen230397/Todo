@@ -1,14 +1,15 @@
 part of 'dropdown_bloc.dart';
 
 abstract class DropdownState {
-  String item;
-  DropdownState({required this.item});
+  String planItem;
+  String chartItem;
+  DropdownState({required this.planItem, required this.chartItem});
 }
 
 class DropdownInitial extends DropdownState {
-  DropdownInitial({required String item}) : super(item: item);
+  DropdownInitial({required String planItem, required String chartItem}) : super(planItem: planItem, chartItem: chartItem);
 }
 
 class DropdownUpdate extends DropdownState {
-  DropdownUpdate({required String item}) : super(item: item);
+  DropdownUpdate({required String planItem, required String chartItem}) : super(planItem: planItem, chartItem: chartItem);
 }

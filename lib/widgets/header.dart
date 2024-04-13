@@ -23,7 +23,6 @@ class _HeaderState extends State<Header> {
 
     return Container(
         width: screenSize.width,
-        height: screenSize.height * 0.15,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -36,11 +35,13 @@ class _HeaderState extends State<Header> {
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(widget.Title,
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 30)),
+              isChartScreen
+                  ? Container()
+                  : Text(widget.Title,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 30)),
               isPlanScreen
                   ? BlocBuilder<TodoBloc, TodoState>(
                       builder: (context, todoState) {
@@ -48,27 +49,30 @@ class _HeaderState extends State<Header> {
                         builder: (context, dropdownState) {
                           if (todoState is TodoUpdate &&
                               todoState.task.isNotEmpty) {
-                            String today = formatDT(DateTime.now().toString());
                             final dateList = todoState.task
-                                .where((task) => formatDT(task.date) != today)
+                                .where((task) {
+                                  DateTime parsedDate =
+                                      DateTime.parse(task.date);
+                                  return parsedDate.isAfter(DateTime.now());
+                                })
                                 .map((task) => formatDT(task.date))
                                 .toSet()
                                 .toList();
                             if (dateList.isNotEmpty) {
-                              dropdownState.item == ''
-                                  ? context
-                                      .read<DropdownBloc>()
-                                      .add(SelectedItem(item: dateList.first))
+                              dropdownState.planItem == ''
+                                  ? context.read<DropdownBloc>().add(
+                                      SelectedPlanItem(
+                                          planItem: dateList.first))
                                   : null;
                               bool greenFlag =
-                                  dateList.contains(dropdownState.item);
+                                  dateList.contains(dropdownState.planItem);
                               greenFlag == false
-                                  ? context
-                                      .read<DropdownBloc>()
-                                      .add(SelectedItem(item: dateList.first))
+                                  ? context.read<DropdownBloc>().add(
+                                      SelectedPlanItem(
+                                          planItem: dateList.first))
                                   : null;
                               String? selectedItem = greenFlag
-                                  ? dropdownState.item
+                                  ? dropdownState.planItem
                                   : dateList.first;
                               return DropdownButton<String>(
                                 selectedItemBuilder: (_) {
@@ -100,9 +104,9 @@ class _HeaderState extends State<Header> {
                                   );
                                 }).toList(),
                                 onChanged: (item) {
-                                  context
-                                      .read<DropdownBloc>()
-                                      .add(SelectedItem(item: item.toString()));
+                                  context.read<DropdownBloc>().add(
+                                      SelectedPlanItem(
+                                          planItem: item.toString()));
                                 },
                               );
                             } else {
@@ -121,32 +125,110 @@ class _HeaderState extends State<Header> {
                               fontWeight: FontWeight.bold,
                               fontSize: 20))
                       : isChartScreen
-                          ? BlocBuilder<TodoBloc, TodoState>(
-                              builder: (context, state) {
-                                if (state is TodoUpdate &&
-                                    state.task.isNotEmpty) {
-                                  String date =
-                                      formatDT(DateTime.now().toString());
-                                  final todoList = state.task
-                                      .where((task) => task.date.contains(date))
-                                      .toList();
-                                  final doneList = todoList
-                                      .where((task) => task.isDone == 1)
-                                      .toList();
-                                  final notDoneList = todoList
-                                      .where((task) => task.isDone == 0)
-                                      .toList();
-                                  return Text(
-                                    'Số công việc hôm nay: ${todoList.length}\nĐã hoàn thành: ${doneList.length} - Chưa hoàn thành: ${notDoneList.length}',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white),
-                                  );
-                                } else {
-                                  return Container();
-                                }
-                              },
-                            )
+                          ? BlocBuilder<DropdownBloc, DropdownState>(
+                              builder: (context, dropdownState) {
+                              return BlocBuilder<TodoBloc, TodoState>(
+                                builder: (context, todoState) {
+                                  if (todoState is TodoUpdate &&
+                                      todoState.task.isNotEmpty) {
+                                    String date = dropdownState.chartItem != ''
+                                        ? dropdownState.chartItem
+                                        : formatDT(DateTime.now().toString());
+                                    final todoList = todoState.task
+                                        .where(
+                                            (task) => task.date.contains(date))
+                                        .toList();
+                                    final doneList = todoList
+                                        .where((task) => task.isDone == 1)
+                                        .toList();
+                                    final notDoneList = todoList
+                                        .where((task) => task.isDone == 0)
+                                        .toList();
+                                    final dateList = todoState.task
+                                        .map((task) => formatDT(task.date))
+                                        .toSet()
+                                        .toList();
+                                    dropdownState.chartItem == ''
+                                        ? context.read<DropdownBloc>().add(
+                                            SelectedChartItem(
+                                                chartItem: formatDT(DateTime.now().toString())))
+                                        : null;
+                                    bool greenFlag = dateList
+                                        .contains(dropdownState.chartItem);
+                                    String? selectedItem = greenFlag
+                                        ? dropdownState.chartItem
+                                        : dateList.first;
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text('Thống Kê: ',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 25,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                            DropdownButton<String>(
+                                              selectedItemBuilder: (_) {
+                                                return dateList
+                                                    .map((e) => Container(
+                                                          alignment:
+                                                              Alignment.center,
+                                                          child: Text(
+                                                            formatDate(e) == formatDate(DateTime.now().toString()) ? 'Hôm nay' : '${formatDate(e)} ',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontSize: 20),
+                                                          ),
+                                                        ))
+                                                    .toList();
+                                              },
+                                              value: selectedItem,
+                                              icon: CircleAvatar(
+                                                radius: 12,
+                                                backgroundColor: Colors.white,
+                                                child:
+                                                    Icon(Icons.arrow_drop_down),
+                                              ),
+                                              items:
+                                                  dateList.map((String value) {
+                                                return new DropdownMenuItem<
+                                                    String>(
+                                                  value: value,
+                                                  child: new Text(
+                                                    formatDate(value) == formatDate(DateTime.now().toString()) ? 'Hôm nay' : '${formatDate(value)} ',
+                                                    style: TextStyle(
+                                                        color: Colors.black54),
+                                                  ),
+                                                );
+                                              }).toList(),
+                                              onChanged: (item) {
+                                                context
+                                                    .read<DropdownBloc>()
+                                                    .add(SelectedChartItem(
+                                                        chartItem:
+                                                            item.toString()));
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                        Text(
+                                          'Số công việc: ${todoList.length}\nĐã hoàn thành: ${doneList.length} - Chưa hoàn thành: ${notDoneList.length}',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white),
+                                        ),
+                                      ],
+                                    );
+                                  } else {
+                                    return Container();
+                                  }
+                                },
+                              );
+                            })
                           : Container(),
             ],
           ),
