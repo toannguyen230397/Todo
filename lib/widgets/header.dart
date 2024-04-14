@@ -23,6 +23,7 @@ class _HeaderState extends State<Header> {
 
     return Container(
         width: screenSize.width,
+        height: screenSize.width * 0.3,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
               begin: Alignment.topLeft,
