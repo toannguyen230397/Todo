@@ -54,7 +54,9 @@ class _HeaderState extends State<Header> {
                                 .where((task) {
                                   DateTime parsedDate =
                                       DateTime.parse(task.date);
-                                  return parsedDate.isAfter(DateTime.now());
+                                  final dateOne = DateTime(parsedDate.year, parsedDate.month, parsedDate.day);
+                                  final dateTwo = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+                                  return dateOne.isAfter(dateTwo);
                                 })
                                 .map((task) => formatDT(task.date))
                                 .toSet()
